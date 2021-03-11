@@ -1,6 +1,7 @@
-import sys, inspect
 import importlib
+import inspect
 import pkgutil
+import sys
 from pyclbr import readmodule
 
 
@@ -15,6 +16,7 @@ def merge_dicts(dict1, dict2):
             dict1[k] = dict2[k]
     return dict1
 
+
 def calculate_level_increase(capacity, area, valve_open):
     return (capacity / area) * (valve_open / 100)
 
@@ -24,9 +26,7 @@ def iter_namespace(ns_pkg):
 
 
 def discover_processes(namespace):
-    discovered_processes = {
-        name: importlib.import_module(name) for finder, name, ispkg in iter_namespace(namespace)
-    }
+    discovered_processes = {name: importlib.import_module(name) for finder, name, ispkg in iter_namespace(namespace)}
     project_modules = discovered_processes.values()
 
     project_classes = [list((readmodule(module).keys())) for module in discovered_processes.keys()]
