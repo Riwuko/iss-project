@@ -1,0 +1,4 @@
+numpy==1.18.1
+matplotlib
+scipy
+Flask==1.1
