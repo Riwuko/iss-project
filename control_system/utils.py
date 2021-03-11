@@ -17,10 +17,6 @@ def merge_dicts(dict1, dict2):
     return dict1
 
 
-def calculate_level_increase(capacity, area, valve_open):
-    return (capacity / area) * (valve_open / 100)
-
-
 def iter_namespace(ns_pkg):
     return pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + ".")
 
