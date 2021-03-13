@@ -30,14 +30,22 @@ class TankFillingModel(ProcessModel):
         return input_increase - output_flow
 
     def run(self, config={}):
-        ts = np.linspace(config["t_start"], config["t_stop"], config["t_steps"])
-        results = np.zeros(config["t_steps"])
+        ts = np.linspace(0, int(config["simulation_time"]), int(config["t_steps"]))
 
         level = config["initial_liquid_level"]
+        results = np.ones(len(ts)) * level
         valves_config = config["valves_config"]
 
-        for i in range(config["t_steps"]):
-            y = odeint(TankFillingModel.calculate_level_increase, level, ts, args=(self._tank_area, valves_config))
+        for i in range(len(ts)-1):
+            t = [ts[i],ts[i+1]]
+            y = odeint(TankFillingModel.calculate_level_increase, level, t, args=(self._tank_area, valves_config))
             level = y[-1]
-            results[i] = level
-        return [results]
+            results[i+1] = level
+
+        return [
+                {"name": "level",
+                "results": results,
+                "times": ts,
+                "title": "Tank filling - liquid level",
+                }
+            ]

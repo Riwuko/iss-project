@@ -1,5 +1,6 @@
 import re
 
+import collections.abc
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -8,29 +9,31 @@ from .utils import discover_processes, merge_dicts
 
 
 class ProcessSimulator:
-    def __init__(self, process, simulation_name="", regulator=None):
+    def __init__(self, process=None, simulation_name="", regulator=None):
         self._process = process
         self._regulator = regulator
         self._simulation_name = simulation_name
-        self.config = self.get_default_simulation_config()
+        self.config = ProcessSimulator.get_default_simulation_config()
 
-    def get_default_simulation_config(self):
+    @staticmethod
+    def get_default_simulation_config():
         return {
-            "t_start": 0,
-            "t_stop": 10,
+            "tank_area": 1,
+            "simulation_time": 10,
             "t_steps": 100,
             "initial_liquid_level": 0,
+            "initial_liquid_concentration_A": 0,
             "valves_config": {
                 "input_valves": [
                     {
-                        "valve_capacity": 50,  # [dm^3/min]
+                        "valve_capacity": 5.5,  # [dm^3/s]
                         "valve_open_percent": 0,
                         "liquid_config": {
                             "liquid_concentration_A": 10,
                         },
                     },
                     {
-                        "valve_capacity": 80,
+                        "valve_capacity": 6,
                         "valve_open_percent": 10,
                         "liquid_config": {
                             "liquid_concentration_A": 10,
@@ -39,7 +42,7 @@ class ProcessSimulator:
                 ],
                 "output_valves": [
                     {
-                        "valve_capacity": 60,
+                        "valve_capacity": 5.5,
                         "valve_open_percent": 10,
                     }
                 ],
@@ -66,19 +69,26 @@ class ProcessSimulator:
             process_list.append({"process_slug": meta.slug, "process_name": name})
         return process_list
 
+    def _ensure_config_format(self, config):
+        for k in config:
+            if isinstance(config[k], collections.abc.Mapping):
+                config[k] = self._ensure_config_format(config[k])
+            elif isinstance(config[k], list):
+                list(map(self._ensure_config_format, config[k])) 
+            else:
+                config[k] = float(config[k])
+        return config
+
+    def _ensure_results_format(self):
+        if self._results:
+            for result_dict in self._results:
+                result_dict["results"] = [format(number, '.5f')  if number>=0 else 0 for number in result_dict.get("results",[])]
+                result_dict["times"] = [format(number, '.2f') for number in result_dict.get("times",[])]
+
+
     def simulate(self, simulation_config={}):
+        config = self._ensure_config_format(simulation_config)
         config = merge_dicts(self.config, simulation_config)
         self._results = self._process.run(config)
         self._ensure_results_format()
         return self._results
-
-    def _ensure_results_format(self):
-        if self._results:
-            self._results = np.array(self._results).tolist()
-
-    def draw_simulation(self):
-        ts = np.linspace(self.config["t_start"], self.config["t_stop"], self.config["t_steps"])
-        plt.figure()
-        plt.subplot(2, 1, 1)
-        plt.plot(ts, self._results, "b-", linewidth=3)
-        plt.ylabel(self._simulation_name)
