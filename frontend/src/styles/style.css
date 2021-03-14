@@ -1,0 +1,227 @@
+html, body,
+h1, h2, h3, h4, h5, h6,
+a, p, span,
+em, small, strong,
+sub, sup,
+mark, del, ins, strike,
+abbr, dfn,
+blockquote, q, cite,
+code, pre,
+ol, ul, li, dl, dt, dd,
+div, section, article,
+main, aside, nav,
+header, hgroup, footer,
+img, figure, figcaption,
+address, time,
+audio, video,
+canvas, iframe,
+details, summary,
+fieldset, form, label, legend,
+table, caption,
+tbody, tfoot, thead,
+tr, th, td {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+body{
+    margin: 0 auto;
+    font-family: sans-serif;
+    background: rgb(0, 174, 255);
+}
+
+
+* { box-sizing: border-box }
+
+.App-container{
+    padding: 2em 0 0 35rem;
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+}
+
+
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    appearance: none;
+    outline: 0;
+    box-shadow: none;
+    border: 0 !important;
+    padding: 0 1em;
+    color: black;
+    cursor: pointer;
+    width: 90%;
+    height: 3em;
+    margin: auto;
+    margin-bottom: 2em;
+  }
+
+  .select-wide {
+    position: relative;
+    display: flex;
+    font-size: 16px;
+    font-family: sans-serif;
+    font-weight: 700;
+    color: #444;
+    line-height: 3;
+    background: whitesmoke;
+    overflow: hidden;
+  }
+
+  .select-wide:hover::after {
+    color: whitesmoke;
+  }
+
+  .right-charts-container {
+      padding: 1em;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+  }
+
+  .right-charts-container > div{
+    max-width: 60rem;
+    width: 100%;
+    position: relative;
+    background: rgb(50, 72, 90);
+    margin: 1em 0;
+    padding: .5em 7em .5em 6.5em;
+    border-radius: 2em;
+    border: 20px solid rgb(58, 80, 99);
+
+  }
+
+  .left-charts-container{
+    width: 35rem;
+    padding: 3em 0 5em 0;
+    background-color: rgb(50, 72, 90);
+    color: white;
+    font-size: 14px;
+    line-height: 1.5em;
+    position: fixed;
+    left: 0;
+    top: 0;
+    margin: 0;
+    bottom: 0;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+}
+
+form *{
+    width: 100%;
+}
+
+.left-charts-container h1{
+  color: white;
+  font-size: 1.2rem;
+  align-self: center;
+  margin: 0 0 2em 0;
+}
+
+.left-charts-container::-webkit-scrollbar {
+    width: 1em;
+  }
+   
+  .left-charts-container::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  }
+   
+  body::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    outline: 1px solid slategrey;
+  }
+
+.input-container{
+    display: flex;
+    flex-direction: column;
+    padding-left: 2em;
+    padding-right: 2em;
+    width: 100%;
+    line-height: 200%;
+}
+
+
+.input-container div{
+    display: flex;
+    flex-direction: row;
+    color: rgb(145, 149, 153);
+}
+
+.input-container div [type="range"] {
+  flex: 1 0 0%;
+}
+
+.input-container div [type="range"] + span {
+  flex: 0 0 3ch;
+}
+
+.valve-container{
+    flex: 1;
+    margin: 1.2em 0 1.2em 0;
+    padding: .5em 0;
+    background-color: rgb(58, 80, 99);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+
+
+.valve-container button{
+    background-color:  rgb(84, 109, 131);
+    border: none;
+    padding: .5em 0 .5em 0;
+    border-radius: .5em;
+    color: white;
+    font-size: 14px;
+    width: 90%;
+    margin: .5em 2em;
+}
+
+.submit-button{
+    width: 100%;
+    margin: 1em;
+    background-color: #1d6ace;
+    border: none;
+    padding: .5em;
+    border-radius: .5em;
+    color: whitesmoke;
+    font-weight: bolder;
+    font-size: 16px;
+    width: 90%;
+    margin-left: 2em;
+}
+
+.valve-container .remove-button{
+    background-color:  transparent;
+    cursor: pointer;
+}
+
+.remove-button:after{
+    content: "\00d7"; 
+    color: white;
+  }
+
+
+
+.row-elements{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+
+.row-elements button{
+    width: 5%;
+    position: absolute;
+    right: 0;
+    margin-right: .5em;
+    margin-top: 4em;
+}
+
