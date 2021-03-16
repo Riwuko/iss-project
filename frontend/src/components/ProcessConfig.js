@@ -129,7 +129,7 @@ const ProcessConfig = (props) => {
                 label="simulation time [s]"
                 name="simulation_time"
                 defaultValue={config.simulation_time}
-                max="100"
+                max="400"
                 fieldChanged={handleSliderChange} />
             <SliderField 
                 label="steps count"

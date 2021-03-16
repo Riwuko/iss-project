@@ -43,7 +43,7 @@ class TankFillingModel(ProcessModel):
             results[i+1] = level
 
         return [
-                {"name": "level",
+                {"name": "level [dm]",
                 "results": results,
                 "times": ts,
                 "title": "Tank filling - liquid level",
