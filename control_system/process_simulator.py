@@ -1,22 +1,21 @@
+import collections.abc
 import re
 
-import collections.abc
 import numpy as np
 from matplotlib import pyplot as plt
 
 from . import processes
 from .utils import discover_processes, merge_dicts
-
+from .processes.process_model import ProcessModel
 
 class ProcessSimulator:
-    def __init__(self, process=None, simulation_name="", regulator=None):
+    def __init__(self, process:ProcessModel=None, regulator=None)->None:
         self._process = process
         self._regulator = regulator
-        self._simulation_name = simulation_name
         self.config = ProcessSimulator.get_default_simulation_config()
 
     @staticmethod
-    def get_default_simulation_config():
+    def get_default_simulation_config()->dict:
         return {
             "tank_area": 1,
             "simulation_time": 10,
@@ -50,7 +49,7 @@ class ProcessSimulator:
         }
 
     @staticmethod
-    def get_process_dict():
+    def get_process_dict()->dict:
         processes_meta_classes = discover_processes(namespace=processes)
 
         process_dict = {}
@@ -60,7 +59,7 @@ class ProcessSimulator:
         return process_dict
 
     @staticmethod
-    def get_process_list():
+    def get_process_list()->list:
         processes_meta_classes = discover_processes(namespace=processes)
 
         process_list = []
@@ -69,12 +68,12 @@ class ProcessSimulator:
             process_list.append({"process_slug": meta.slug, "process_name": name})
         return process_list
 
-    def _ensure_config_format(self, config):
+    def _ensure_config_format(self, config:dict)->dict:
         for k in config:
             if isinstance(config[k], collections.abc.Mapping):
                 config[k] = self._ensure_config_format(config[k])
             elif isinstance(config[k], list):
-                list(map(self._ensure_config_format, config[k])) 
+                list(map(self._ensure_config_format, config[k]))
             else:
                 config[k] = float(config[k])
         return config
@@ -82,11 +81,15 @@ class ProcessSimulator:
     def _ensure_results_format(self):
         if self._results:
             for result_dict in self._results:
-                result_dict["results"] = [format(number, '.5f')  if number>=0 else 0 for number in result_dict.get("results",[])]
-                result_dict["times"] = [format(number, '.2f') for number in result_dict.get("times",[])]
+                result_dict["results"] = [
+                    format(number, ".5f") if number >= 0 else 0
+                    for number in result_dict.get("results", [])
+                ]
+                result_dict["times"] = [
+                    format(number, ".2f") for number in result_dict.get("times", [])
+                ]
 
-
-    def simulate(self, simulation_config={}):
+    def simulate(self, simulation_config:dict={})->dict:
         config = self._ensure_config_format(simulation_config)
         config = merge_dicts(self.config, simulation_config)
         self._results = self._process.run(config)
