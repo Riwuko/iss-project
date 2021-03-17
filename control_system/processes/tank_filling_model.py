@@ -36,16 +36,22 @@ class TankFillingModel(ProcessModel):
         results = np.ones(len(ts)) * level
         valves_config = config["valves_config"]
 
-        for i in range(len(ts)-1):
-            t = [ts[i],ts[i+1]]
-            y = odeint(TankFillingModel.calculate_level_increase, level, t, args=(self._tank_area, valves_config))
+        for i in range(len(ts) - 1):
+            t = [ts[i], ts[i + 1]]
+            y = odeint(
+                TankFillingModel.calculate_level_increase,
+                level,
+                t,
+                args=(self._tank_area, valves_config),
+            )
             level = y[-1]
-            results[i+1] = level
+            results[i + 1] = level
 
         return [
-                {"name": "level [dm]",
+            {
+                "name": "level [dm]",
                 "results": results,
                 "times": ts,
                 "title": "Tank filling - liquid level",
-                }
-            ]
+            }
+        ]

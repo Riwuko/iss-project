@@ -1,6 +1,6 @@
+import collections.abc
 import re
 
-import collections.abc
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -74,7 +74,7 @@ class ProcessSimulator:
             if isinstance(config[k], collections.abc.Mapping):
                 config[k] = self._ensure_config_format(config[k])
             elif isinstance(config[k], list):
-                list(map(self._ensure_config_format, config[k])) 
+                list(map(self._ensure_config_format, config[k]))
             else:
                 config[k] = float(config[k])
         return config
@@ -82,9 +82,13 @@ class ProcessSimulator:
     def _ensure_results_format(self):
         if self._results:
             for result_dict in self._results:
-                result_dict["results"] = [format(number, '.5f')  if number>=0 else 0 for number in result_dict.get("results",[])]
-                result_dict["times"] = [format(number, '.2f') for number in result_dict.get("times",[])]
-
+                result_dict["results"] = [
+                    format(number, ".5f") if number >= 0 else 0
+                    for number in result_dict.get("results", [])
+                ]
+                result_dict["times"] = [
+                    format(number, ".2f") for number in result_dict.get("times", [])
+                ]
 
     def simulate(self, simulation_config={}):
         config = self._ensure_config_format(simulation_config)

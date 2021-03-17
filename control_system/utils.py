@@ -22,7 +22,9 @@ def iter_namespace(ns_pkg):
 
 
 def discover_processes(namespace):
-    discovered_processes = {name: importlib.import_module(name) for finder, name, ispkg in iter_namespace(namespace)}
+    discovered_processes = {
+        name: importlib.import_module(name) for finder, name, ispkg in iter_namespace(namespace)
+    }
     project_modules = discovered_processes.values()
 
     project_classes = [list((readmodule(module).keys())) for module in discovered_processes.keys()]

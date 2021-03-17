@@ -9,9 +9,11 @@ from control_system.process_simulator import ProcessSimulator
 app = flask.Flask(__name__)
 CORS(app)
 
+
 @app.route("/")
 def process_list():
     return jsonify(ProcessSimulator.get_process_list())
+
 
 @app.route("/process", methods=["GET"])
 def process_config():
@@ -28,9 +30,9 @@ def simulate_process(process_slug):
     default_config = ProcessSimulator.get_default_simulation_config()
     config = request.json.get("config", default_config) if request.json else default_config
 
-    tank_area=config.get("tank_area", 1)
-    min_level=config.get("min_level", 0)
-    max_level=config.get("max_level", 20000)
+    tank_area = config.get("tank_area", 1)
+    min_level = config.get("min_level", 0)
+    max_level = config.get("max_level", 20000)
 
     process = process.get("process_class")(tank_area)
     ps = ProcessSimulator(process)
