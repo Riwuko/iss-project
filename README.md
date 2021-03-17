@@ -15,12 +15,12 @@ In the directory with docker-compose.yml run the following commands: <br>
 <b>
 
 ### Steps to install new packages
-#### Back-end
+#### Back-end <br>
 Add the library name to the `requirements.txt` file. Close the docker-compose if running and then build and run it again. <br>
-#### Front-end
+#### Front-end <br>
 In the `frontend` directory write proper instalation command inside the terminal. <br> 
 
-### Available endpoints
+### Available endpoints <br>
 `/` list of available processes {GET} <br>
 `/process/<process-name>` process config and simulation results for default config {GET} <br>
 `/process/<process-name>` process config and simulation results for requested config {POST} <br>
