@@ -1,13 +1,11 @@
-FROM node:14
-RUN mkdir /frontend
+FROM node:13-slim
+
 WORKDIR /frontend
+COPY package.json /frontend/
 
-ENV PATH /code/node_modules/.bin:$PATH
-COPY /frontend/package.json ./
-COPY /frontend/package-lock.json ./
-RUN npm install --silent
-RUN npm install react-scripts -g --silent
+RUN npm install
+COPY src /frontend/src
+COPY public /frontend/public
 
-ADD /frontend/ /frontend/
-
+EXPOSE 3000
 CMD ["npm", "start"]
