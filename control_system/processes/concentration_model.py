@@ -1,36 +1,37 @@
 import numpy as np
-from scipy.integrate import odeint
 
 from .process_model import ProcessModel
+from ..controllers.controller_model import ControllerModel
 
 
 class ConcentrationModel(ProcessModel):
     class Meta:
         slug = "concentration-model"
+        control_value = "concentration"
 
     @staticmethod
-    def calculate_single_valve_flow(tank_area:float, valve:dict={})->float:
-        """Calculates single valve flow computed as how much height increases in the tank thanks to the given valve 
+    def calculate_single_valve_flow(tank_area: float, valve: dict = {}) -> float:
+        """Calculates single valve flow computed as how much height increases in the tank thanks to the given valve
 
         Parameters:
         tank_area -- area of the tank given in the main simulation configuration
         valve -- dict single valve data (capacity and degree of opening required)
 
         Returns:
-        float -- single valve flow 
+        float -- single valve flow
         """
         valve_capacity, valve_open = valve.get("valve_capacity"), valve.get("valve_open_percent")
         valve_flow = valve_capacity * (valve_open / 100)
         return valve_flow
 
     @staticmethod
-    def calculate_valves_flow(tank_area:float, valves_list:list, whole_concentration:float)->tuple:
-        """Calculates valve flow (input and volume increase/decrease) for all the valves in the given valves list (input valves or output valves).  
+    def calculate_valves_flow(tank_area: float, valves_list: list, whole_concentration: float) -> tuple:
+        """Calculates valve flow (input and volume increase/decrease) for all the valves in the given valves list (input valves or output valves).
 
         Parameters:
         tank_area -- area of the tank given in the main simulation configuration
         valves_list -- list with valves dicts for single valve type (input valves or the output valves)
-        whole_concentration -- current percentage concentration of the A substance in the whole tank liquid 
+        whole_concentration -- current percentage concentration of the A substance in the whole tank liquid
 
         Returns:
         tuple with:
@@ -39,11 +40,8 @@ class ConcentrationModel(ProcessModel):
         """
         valves_liquid_volume_increase = 0
         valves_liquid_height_sum = 0
-        valves_amount = len(valves_list)
 
-        #loop over all the valves in the valves_list
-        for i in range(valves_amount):
-            valve = valves_list[i]
+        for valve in valves_list:
             substance_concentration = valve.get("liquid_config", {}).get("liquid_concentration_A")
             if not substance_concentration:  # then it is output valve
                 substance_concentration = whole_concentration
@@ -54,11 +52,10 @@ class ConcentrationModel(ProcessModel):
 
         return (valves_liquid_volume_increase, valves_liquid_height_sum)
 
-    @staticmethod
-    def calculate_percentage_concentration_level_volume(x:list, time:list, tank_area:float, valves_config:dict)->list:
-        """Calculates valve flow for all the input valves and separately for all the output valves. 
-        Then calculates liquid precentage concentration of the A substance changes in time, 
-        liquid height changes in time and liquid volume changes in time. 
+    def _calculate_process_flow(self, x: list, time: list, tank_area: float, valves_config: dict) -> list:
+        """Calculates valve flow for all the input valves and separately for all the output valves.
+        Then calculates liquid precentage concentration of the A substance changes in time,
+        liquid height changes in time and liquid volume changes in time.
 
         Parameters:
         x -- list with concentration, level and volume values calculated in previous step (as start parameters)
@@ -67,7 +64,7 @@ class ConcentrationModel(ProcessModel):
         valves_config -- valves configuration given in the main simulation configuration
 
         Returns:
-        list of: 
+        list of:
             dCadt - liquid percentage concentration of the A substance in this simulation step [%]
             dHdt - liquid height change calculated in this simulation step [dm]
             dVdt - liquid volume change calculated in this simulation step [dm³]
@@ -75,16 +72,10 @@ class ConcentrationModel(ProcessModel):
         percentage_concentration = x[0]
         volume = x[2]
 
-        (
-            output_tank_substance_volume,
-            output_volume_increase,
-        ) = ConcentrationModel.calculate_valves_flow(
+        (output_tank_substance_volume, output_volume_increase,) = ConcentrationModel.calculate_valves_flow(
             tank_area, valves_config.get("output_valves", []), percentage_concentration
         )
-        (
-            input_tank_substance_volume,
-            input_volume_increase,
-        ) = ConcentrationModel.calculate_valves_flow(
+        (input_tank_substance_volume, input_volume_increase,) = ConcentrationModel.calculate_valves_flow(
             tank_area, valves_config.get("input_valves", []), percentage_concentration
         )
 
@@ -95,64 +86,69 @@ class ConcentrationModel(ProcessModel):
         ) / volume
         return [dCadt, dHdt, dVdt]
 
-    def _validate_result(self, result_value:float, min_value:float=None, max_value:float=None)->float:
-        result_value = min_value if min_value and result_value < min_value else result_value
-        result_value = max_value if max_value and result_value > max_value else result_value
-        return result_value
+    def _prepare_results_collections(self, ts, config: dict = {}, controller: ControllerModel = None):
+        """Creates data dictionaries for storing simulation results for the model."""
+        level = config["initial_liquid_level"] if config["initial_liquid_level"] > 0 else 0.01
+        volume = level * self._tank_area
+        concentration = config["initial_liquid_concentration_A"]
+        valves_config = config["valves_config"]
 
-    def _get_results_dict(self, concentration_changes:list, level_changes:list, volume_changes:list, ts:list)->dict:
-        return [
-                {
-                    "name": "concentration [%]",
-                    "results": concentration_changes,
-                    "times": ts,
-                    "title": "Tank filling - liquid concentration of A",
-                },
-                {
-                    "name": "level [dm]",
-                    "results": level_changes,
-                    "times": ts,
-                    "title": "Tank filling - liquid level",
-                },
-                {
-                    "name": "volume [dm³]",
-                    "results": volume_changes,
-                    "times": ts,
-                    "title": "Tank filling - liquid volume",
-                },
-                ]
+        self._results["level"] = self._prepare_data(ts, "level [dm]", [level], "liquid level")
+        self._results["volume"] = self._prepare_data(ts, "volume [dm³]", [volume], "liquid volume")
+        self._results["concentration"] = self._prepare_data(
+            ts, "concentration [%]", [concentration], "liquid concentration of A"
+        )
+        for i, valve in enumerate(valves_config["input_valves"]):
+            self._results[f"input_{i}_opens"] = self._prepare_data(
+                ts, f"input_{i}_opens", [valve["valve_open_percent"]], f"inputs opens percentages"
+            )
 
-    def run(self, config:dict={})->dict:
+        if controller:
+            assert len(controller.set_points) == len(ts)
+            self._results["set_points"] = {"values": controller.set_points, "control_value": "concentration"}
+
+    def _control_valves_open_percentage(
+        self, controller: ControllerModel, set_point: float, control_value: float, valves_config: dict
+    ) -> dict:
+        """Spcifies how the valves are gonna be selected for the automatic regulation.
+        For concentration model the controller updates valves only when:
+            > control_value is lower than set_point and valve substance concentration is bigger than set_point so it can be used to make control_value higher
+            > control_value is higher than set_point and valve substance concentration is lower than set_point so it can be uset to make control_value lower
+        """
+        delta_error = control_value - set_point
+
+        for valve in valves_config["input_valves"]:
+            valve["valve_open_percent"] = 0
+
+        for valve in valves_config["input_valves"]:
+            concentration = valve["liquid_config"]["liquid_concentration_A"]
+
+            if (delta_error < 0 and concentration > set_point) or (delta_error >= 0 and concentration <= set_point):
+                valve["valve_open_percent"] = controller.update(set_point, control_value)
+
+        return valves_config
+
+    def run(self, config: dict = {}, controller: ControllerModel = None) -> dict:
         ts = np.linspace(0, int(config["simulation_time"]), int(config["t_steps"]))
         level = config["initial_liquid_level"] if config["initial_liquid_level"] > 0 else 0.01
         volume = level * self._tank_area
         concentration = config["initial_liquid_concentration_A"]
-        level_changes = np.ones(len(ts)) * level
-        volume_changes = np.ones(len(ts)) * volume
-        concentration_changes = np.ones(len(ts)) * concentration
-
-        y0 = [concentration, level, volume]
         valves_config = config["valves_config"]
 
-        for i in range(len(ts) - 1):
-            t = [ts[i], ts[i + 1]]
-            y = odeint(
-                ConcentrationModel.calculate_percentage_concentration_level_volume,
-                y0,
-                t,
-                args=(
-                    self._tank_area,
-                    valves_config,
-                ),
-            )
-            max_concentration_value = 100 if y[-1][1] > 0 else 1
-            y[-1][0] = self._validate_result(
-                y[-1][0], min_value=0, max_value=max_concentration_value
-            )
-            y[-1][1] = self._validate_result(y[-1][1], min_value=0)
+        self._prepare_results_collections(ts, config, controller)
 
-            y0 = y[-1]
-            concentration_changes[i + 1] = y[-1][0]
-            level_changes[i + 1] = y[-1][1]
-            volume_changes[i + 1] = y[-1][2]
-        return self._get_results_dict(concentration_changes, level_changes, volume_changes, ts)
+        for i in range(len(ts) - 1):
+            concentration, level, volume = self._run_process(
+                ts, i, [concentration, level, volume], valves_config, controller, concentration
+            )
+
+            level = self._validate_result(level, min_value=0)
+            volume = self._validate_result(volume, min_value=0.01)
+            max_concentration = 100 if level != 0 else 0
+            concentration = self._validate_result(concentration, min_value=0, max_value=max_concentration)
+            self._results["concentration"]["results"].append(concentration)
+            self._results["level"]["results"].append(level)
+            self._results["volume"]["results"].append(volume)
+            for i, valve in enumerate(valves_config["input_valves"]):
+                self._results[f"input_{i}_opens"]["results"].append(valve["valve_open_percent"])
+        return self._results

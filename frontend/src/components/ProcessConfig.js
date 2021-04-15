@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getConfig } from "../services/process";
+import { getConfig } from "../services/processService";
 
 import SliderField from "../components/SliderField";
 import ProcessConcentrationConfig from "../components/ProcessConcentrationConfig";
@@ -7,7 +7,7 @@ import ProcessTankFillingConfig from "../components/ProcessTankFillingConfig";
 
 const ProcessConfig = (props) => {
   const [config, setConfig] = useState({});
-  const new_output_valve_element = {
+  const newOutputValveElement = {
     valve_capacity: "0",
     valve_open_percent: "0",
   };
@@ -19,36 +19,36 @@ const ProcessConfig = (props) => {
   }, []);
 
   useEffect(() => {
-    console.log(config);
-    props.onButtonChange(config);
+    props.onConfigChange(config);
   }, [config]);
 
-  const handleAddInputValveClick = (new_valve) => {
-    let valves_list = config;
-    valves_list.valves_config.input_valves.push(new_valve);
-    setConfig(valves_list);
-    props.onButtonChange({ ...valves_list });
+  const updateValveList = valvesList => {
+    setConfig(valvesList);
+    props.onConfigChange({ ...valvesList });
+  }
+
+  const handleAddInputValveClick = newValve => {
+    let valvesList = config;
+    valvesList.valves_config.input_valves.push(newValve);
+    updateValveList(valvesList);
   };
 
-  const handleAddOutputValveClick = (new_valve) => {
-    let valves_list = config;
-    valves_list.valves_config.output_valves.push(new_valve);
-    setConfig(valves_list);
-    props.onButtonChange({ ...valves_list });
+  const handleAddOutputValveClick = newValve => {
+    let valvesList = config;
+    valvesList.valves_config.output_valves.push(newValve);
+    updateValveList(valvesList);
   };
 
-  const handleRemoveInputValveClick = (index) => {
-    let valves_list = config;
-    valves_list.valves_config.input_valves.splice(index, 1);
-    setConfig(valves_list);
-    props.onButtonChange({ ...valves_list });
+  const handleRemoveInputValveClick = index => {
+    let valvesList = config;
+    valvesList.valves_config.input_valves.splice(index, 1);
+    updateValveList(valvesList);
   };
 
-  const handleRemoveOutputValveClick = (index) => {
-    let valves_list = config;
-    valves_list.valves_config.output_valves.splice(index, 1);
-    setConfig(valves_list);
-    props.onButtonChange({ ...valves_list });
+  const handleRemoveOutputValveClick = index => {
+    let valvesList = config;
+    valvesList.valves_config.output_valves.splice(index, 1);
+    updateValveList(valvesList);
   };
 
   const handleSliderChange = (fieldId, value) => {
@@ -58,9 +58,9 @@ const ProcessConfig = (props) => {
     });
   };
 
-  const handleSliderValveChange = (fieldId, value, index, valves_type) => {
+  const handleSliderValveChange = (fieldId, value, index, valvesType) => {
     setConfig((currentValues) => {
-      currentValues["valves_config"][valves_type][index][fieldId] = value;
+      currentValues["valves_config"][valvesType][index][fieldId] = value;
       return { ...currentValues };
     });
   };
@@ -104,7 +104,7 @@ const ProcessConfig = (props) => {
         </div>
         {config.valves_config.output_valves.length - 1 === index && (
           <button
-            onClick={() => handleAddOutputValveClick(new_output_valve_element)}
+            onClick={() => handleAddOutputValveClick(newOutputValveElement)}
           >
             Add output valve
           </button>
