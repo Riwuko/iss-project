@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Line } from "react-chartjs-2";
 
 const Chart = (props) => {
@@ -15,16 +15,19 @@ const Chart = (props) => {
   };
 
   const preparePlotData = () => {
+    let datasets = []
+    for (const dataset of props.datasets){
+      datasets.push({
+        ...dataset,
+        ...pickRandomColors(),
+        pointHoverRadius: 10,
+        pointHoverBackgroundColor: "rgba(75,192,192,1)",
+      })
+    }
     return {
       labels: props.labels,
       datasets: [
-        {
-          label: props.label,
-          data: props.data,
-          ...pickRandomColors(),
-          pointHoverRadius: 10,
-          pointHoverBackgroundColor: "rgba(75,192,192,1)",
-        },
+        ...datasets
       ],
     };
   };
