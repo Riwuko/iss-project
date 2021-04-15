@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import "./styles/style.css";
 
-import ProcessChart from "./components/ProcessChart";
+import Process from "./components/Process";
 
 function App() {
   return (
     <div className="App-container">
-      <ProcessChart />
+      <Process />
     </div>
   );
 }
