@@ -1,4 +1,4 @@
-from ..controllers.controller_model import ControllerModel
+from control_system.controllers.base_controller_model import ControllerModel
 from scipy.integrate import odeint
 
 

@@ -36,3 +36,12 @@ def ensure_output_format(func):
         data = func(self, **kwargs)
         return ensure_numeric_format(data)
     return wrapper
+
+def ensure_values_range(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        output = func(self, *args, **kwargs)
+        output = self.min_value if output < self.min_value else output
+        output = self.max_value if output > self.max_value else output
+        return output
+    return wrapper

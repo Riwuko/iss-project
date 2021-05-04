@@ -1,6 +1,6 @@
 import time
-from .controller_model import ControllerModel
-
+from .base_controller_model import ControllerModel
+from control_system.decorators import ensure_values_range
 
 class PIDController(ControllerModel):
     """PID Controller """
@@ -15,6 +15,16 @@ class PIDController(ControllerModel):
 
         super().__init__(**kwargs)
 
+
+    def _compute_P_I_D(self, error, delta_error, delta_time):
+        P_computed = self._Kp * error
+        I_computed = self._Ki * error * delta_time
+        D_computed = 0.0
+        if delta_time > 0:
+            D_computed = self._Kd * delta_error / delta_time
+        return P_computed, I_computed, D_computed
+
+    @ensure_values_range
     def update(self, set_point, feedback_value):
         error = set_point - feedback_value
         delta_error = error - self._last_error
@@ -24,16 +34,13 @@ class PIDController(ControllerModel):
         if delta_time < self._sample_time:
             return
 
-        P_computed = self._Kp * error
-        I_computed = self._Ki * error * delta_time
-        D_computed = 0.0
-        if delta_time > 0:
-            D_computed = self._Kd * delta_error / delta_time
+        if self._tuning_model:
+            P_computed, I_computed, D_computed = self._tuning_model.add_tuning(0, self._Kp, self._Ki, self._Kd, error, delta_error, delta_time)
+        else:
+            P_computed, I_computed, D_computed = self._compute_P_I_D(error, delta_error, delta_time)
+        
 
         self._last_time = self._current_time
         self._last_error = error
 
-        output = P_computed + I_computed * D_computed
-        output = self._min_value if output < self._min_value else output
-        output = self._max_value if output > self._max_value else output
-        return int(output)
+        return int(P_computed + I_computed * D_computed)

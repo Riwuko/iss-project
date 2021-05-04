@@ -1,7 +1,7 @@
 import numpy as np
 
-from .process_model import ProcessModel
-from ..controllers.controller_model import ControllerModel
+from .base_process_model import ProcessModel
+from control_system.controllers.base_controller_model import ControllerModel
 
 
 class TankFillingModel(ProcessModel):
@@ -95,6 +95,10 @@ class TankFillingModel(ProcessModel):
         """
         delta_error = control_value - set_point
         reverse = delta_error < 0
+        
+        for valve in valves_config["input_valves"]:
+            valve["valve_open_percent"] = controller.min_value
+
         valves = sorted(valves_config.get("input_valves"), key=lambda i: i["valve_capacity"], reverse=reverse)
 
         for valve in valves:

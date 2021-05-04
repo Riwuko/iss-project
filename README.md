@@ -15,12 +15,23 @@ In the directory with docker-compose.yml run the following commands: <br>
 <b>
 
 ### Steps to install new packages
+
 #### Back-end <br>
+
 Add the library name to the `requirements.txt` file. Close the docker-compose if running and then build and run it again. <br>
+
 #### Front-end <br>
-In the `frontend` directory write proper instalation command inside the terminal. <br> 
+
+In the `frontend` directory write proper instalation command inside the terminal. <br>
 
 ### Available endpoints <br>
+
 `/` list of available processes {GET} <br>
-`/process/<process-name>` process config and simulation results for default config {GET} <br>
-`/process/<process-name>` process config and simulation results for requested config {POST} <br>
+`/process` get default simulation config {GET} <br>
+`/process/<process-slug>` process config and simulation results for default config {GET} <br>
+`/process/<process-slug>` process config and simulation results for requested config; takes controller slug and tuner slug as query parameters {POST} <br>
+Example: `/process/concentration-model?controller=pid&tuner=Ziegler-Nichols` <br>
+`/controllers` list of all available controllers {GET} <br>
+`/controller` get default controller config {GET} <br>
+`/tuners` list of available tunning methods {GET} <br>
+
