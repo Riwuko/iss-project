@@ -102,7 +102,8 @@ select {
   margin-bottom: 2em;
 }
 
-.select-wide, .select-wide-grayed {
+.select-wide,
+.select-wide-grayed {
   position: relative;
   display: flex;
   font-size: 16px;
@@ -114,11 +115,10 @@ select {
 }
 
 .select-wide-grayed {
-  background:  #297deb;
+  background: #297deb;
   color: whitesmoke;
   margin: 1.5em;
 }
-
 
 .select-wide:hover::after {
   color: whitesmoke;
@@ -133,7 +133,7 @@ select {
   flex: 1;
 }
 
-.right-charts-container > div{
+.right-charts-container > div {
   max-width: 60rem;
   width: 100%;
   position: relative;
@@ -162,7 +162,6 @@ select {
   flex-direction: column;
 }
 
-
 form * {
   width: 100%;
 }
@@ -187,7 +186,7 @@ body::-webkit-scrollbar-thumb {
   outline: 1px solid slategrey;
 }
 
-.row-sliders{
+.row-sliders {
   display: flex;
   flex-direction: row;
 }
@@ -234,6 +233,13 @@ body::-webkit-scrollbar-thumb {
   width: 100%;
 }
 
+.tuner-container {
+  margin: 0 1.2em;
+  padding: 0.5em;
+  display: flex;
+  justify-content: space-evenly;
+}
+
 .valve-container button {
   background-color: rgb(84, 109, 131);
   border: none;
@@ -246,7 +252,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 .controller-container button {
-  background-color:  #297deb;
+  background-color: #297deb;
   border: none;
   padding: 0.5em 0 0.5em 0;
   border-radius: 0.5em;
@@ -255,7 +261,6 @@ body::-webkit-scrollbar-thumb {
   width: 90%;
   margin: 0.5em 2em;
 }
-
 
 .valve-container .remove-button {
   background-color: transparent;

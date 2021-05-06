@@ -15,20 +15,18 @@ const Chart = (props) => {
   };
 
   const preparePlotData = () => {
-    let datasets = []
-    for (const dataset of props.datasets){
+    let datasets = [];
+    for (const dataset of props.datasets) {
       datasets.push({
         ...dataset,
         ...pickRandomColors(),
         pointHoverRadius: 10,
         pointHoverBackgroundColor: "rgba(75,192,192,1)",
-      })
+      });
     }
     return {
       labels: props.labels,
-      datasets: [
-        ...datasets
-      ],
+      datasets: [...datasets],
     };
   };
 

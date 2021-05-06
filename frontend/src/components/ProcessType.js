@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { getList } from "../services/processService";
 
-const ProcessType = props => {
+const findItemBySlug = (items, slug) =>
+  items.find((i) => i.model_slug === slug);
+
+const ProcessType = (props) => {
   const [processes, setProcesses] = useState([]);
 
-  const handleProcessChange = event => {
-    props.onProcessChange(event.target.value, event.target.selectedOptions[0].getAttribute('control-value'));
+  const handleProcessChange = (event) => {
+    const { model_slug, control_value } = findItemBySlug(
+      processes,
+      event.target.value
+    );
+
+    props.onProcessChange(model_slug, control_value);
   };
 
   useEffect(() => {
     getList().then((items) => {
-        setProcesses(items);
-        props.onProcessChange(items[0].model_slug, items[0].control_value);
+      setProcesses(items);
+      props.onProcessChange(items[0].model_slug, items[0].control_value);
     });
   }, []);
 
@@ -19,7 +27,7 @@ const ProcessType = props => {
     <div className="navbar-container">
       <select className="select-wide" onChange={handleProcessChange}>
         {processes.map((item) => (
-          <option key={item.model_slug} value={item.model_slug} control-value={item.control_value}>
+          <option key={item.model_slug} value={item.model_slug}>
             {item.model_name}
           </option>
         ))}

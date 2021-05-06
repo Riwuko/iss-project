@@ -11,53 +11,55 @@ const Process = () => {
   const [controllerType, setControllerType] = useState();
   const [simulationConfig, setSimulationConfig] = useState({});
   const [controllerConfig, setControllerConfig] = useState({});
-  
+  const [tunerTypeEvent, setTunerTypeEvent] = useState();
 
   const handleProcessTypeChange = (process, controlValue) => {
     setProcessType(process);
     setProcessControlValue(controlValue);
   };
 
-  const handleSimulationConfigChange = config => {
+  const handleSimulationConfigChange = (config) => {
     setSimulationConfig(config);
   };
 
-  const handleControllerTypeChange = controller => {
+  const handleControllerTypeChange = (controller) => {
     setControllerType(controller);
   };
 
-  const handleControllerConfigChange = config => {
+  const handleControllerConfigChange = (config) => {
     setControllerConfig(config);
   };
-  
+
+  const handleTunerTypeChange = (tunerEvent) => {
+    setTunerTypeEvent(tunerEvent);
+  };
 
   return (
     <>
       <div className="left-charts-container">
         <h1>Inteligent Control Systems: Process Simulation Project</h1>
-        <ProcessType 
-          onProcessChange={handleProcessTypeChange} 
-          />
-        <ProcessController 
+        <ProcessType onProcessChange={handleProcessTypeChange} />
+        <ProcessController
           stepsCount={simulationConfig.t_steps}
           controlValue={processControlValue}
           onControllerTypeChange={handleControllerTypeChange}
           onControllerConfigChange={handleControllerConfigChange}
+          onTunerTypeChange={handleTunerTypeChange}
         />
         <ProcessConfig
           processType={processType}
           onConfigChange={handleSimulationConfigChange}
         />
       </div>
-      
-        <ProcessChart
-          controlValue={processControlValue}
-          processType={processType}
-          controllerType={controllerType}
-          controllerConfig={controllerConfig}
-          simulationConfig={simulationConfig}
-          />
 
+      <ProcessChart
+        controlValue={processControlValue}
+        processType={processType}
+        controllerType={controllerType}
+        controllerConfig={controllerConfig}
+        simulationConfig={simulationConfig}
+        tunerType={tunerTypeEvent}
+      />
     </>
   );
 };
