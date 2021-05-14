@@ -4,25 +4,30 @@ import flask
 from flask import jsonify, request
 from flask_cors import CORS
 
-from control_system.utils import get_models_dict, get_models_list
+from control_system.utils import get_models_dict, get_models_list, get_project_items
 from control_system.process_simulator import ProcessSimulator
-from control_system import controllers, processes
-from control_system.controllers.controller_model import ControllerModel
-from control_system.processes.process_model import ProcessModel
+from control_system import controllers, processes, tuners
+from control_system.controllers.base_controller_model import ControllerModel
+from control_system.processes.base_process_model import ProcessModel
 
 app = flask.Flask(__name__)
 CORS(app)
 
+project_items = get_project_items()
 
 @app.route("/", methods=["GET"])
 def process_list():
-    return jsonify(get_models_list(processes))
+    return jsonify(project_items.get("process_list", []))
 
 @app.route("/controllers", methods=["GET"])
 def controllers_list():
-    return jsonify(get_models_list(controllers))
+    return jsonify(project_items.get("controller_list", []))
 
-@app.route("/controllers/config", methods=["GET"])
+@app.route("/tuners", methods=["GET"])
+def tuners_list():
+    return jsonify(project_items.get("tuner_list", []))
+
+@app.route("/controller", methods=["GET"])
 def controllers_config():
     simulation_time = request.args.get("time")
     return jsonify(ControllerModel.get_default_controller_config(simulation_time))
@@ -34,7 +39,7 @@ def process_config():
 
 @app.route("/process/<process_slug>", methods=["GET", "POST"])
 def simulate_process(process_slug):
-    process = get_models_dict(processes).get(process_slug)
+    process = project_items.get("process_dict", {}).get(process_slug)
     if not process:
         flask.abort(404)
 
@@ -42,9 +47,12 @@ def simulate_process(process_slug):
     ps.simulation_config = request.json.get("config", {}) if request.json else {}
     
     if request.args.get("controller"):
-        controller = get_models_dict(controllers).get(request.args.get("controller"))
+        controller = project_items.get("controller_dict", {}).get(request.args.get("controller"))
+        controller_config = request.json.get("controller_config", {}) if request.json else {}
+        controller_tuning = project_items.get("tuner_dict", {}).get(request.args.get("tuner"))
         ps.controller_dict = controller
-        ps.controller_config = request.json.get("controller_config", {}) if request.json else {}
+        ps.controller_config = controller_config
+        ps.controller_tuning_dict = controller_tuning
 
     return jsonify(ps.simulate())
 

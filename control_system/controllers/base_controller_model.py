@@ -4,8 +4,9 @@ import time
 class ControllerModel(object):
     def __init__(self, **kwargs):
         self._sample_time = 0.00
-        self._max_value = kwargs.get("max_value", 20000)
-        self._min_value = kwargs.get("min_value", 0)
+        self.max_value = kwargs.get("max_value", 20000)
+        self.min_value = kwargs.get("min_value", 0)
+        self._tuning_model = kwargs.get("tuner")
         self.set_points = kwargs.get("set_points", [])
 
         self.restart()
@@ -44,6 +45,7 @@ class ControllerModel(object):
             "I": 2.8,
             "D": 1.0,
         }
+
 
     def update(self):
         raise NotImplementedError

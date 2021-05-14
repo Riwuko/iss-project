@@ -36,7 +36,9 @@ const SliderField = ({
             fieldChanged(name, e.target.value, index, valvesType)
           }
         />
-        <span>{sliderValue}/{max}</span>
+        <span>
+          {sliderValue}/{max}
+        </span>
       </div>
     </div>
   );

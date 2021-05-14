@@ -22,30 +22,30 @@ const ProcessConfig = (props) => {
     props.onConfigChange(config);
   }, [config]);
 
-  const updateValveList = valvesList => {
+  const updateValveList = (valvesList) => {
     setConfig(valvesList);
     props.onConfigChange({ ...valvesList });
-  }
+  };
 
-  const handleAddInputValveClick = newValve => {
+  const handleAddInputValveClick = (newValve) => {
     let valvesList = config;
     valvesList.valves_config.input_valves.push(newValve);
     updateValveList(valvesList);
   };
 
-  const handleAddOutputValveClick = newValve => {
+  const handleAddOutputValveClick = (newValve) => {
     let valvesList = config;
     valvesList.valves_config.output_valves.push(newValve);
     updateValveList(valvesList);
   };
 
-  const handleRemoveInputValveClick = index => {
+  const handleRemoveInputValveClick = (index) => {
     let valvesList = config;
     valvesList.valves_config.input_valves.splice(index, 1);
     updateValveList(valvesList);
   };
 
-  const handleRemoveOutputValveClick = index => {
+  const handleRemoveOutputValveClick = (index) => {
     let valvesList = config;
     valvesList.valves_config.output_valves.splice(index, 1);
     updateValveList(valvesList);

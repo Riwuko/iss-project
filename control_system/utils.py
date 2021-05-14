@@ -1,8 +1,10 @@
 import importlib
 import inspect
+from functools import lru_cache
 import pkgutil
 import sys
 from pyclbr import readmodule
+from control_system import controllers, processes, tuners
 
 def merge_dicts(dict1, dict2):
     """ Recursively merges dict2 into dict1 """
@@ -58,6 +60,16 @@ def get_models_list(namespace)->list:
         else:
             process_list.append({"model_slug": meta.slug, "model_name": name})
     return process_list
+
+def get_project_items():
+    return {
+        "process_list": get_models_list(processes),
+        "process_dict": get_models_dict(processes),
+        "controller_list": get_models_list(controllers),
+        "controller_dict": get_models_dict(controllers),
+        "tuner_list": get_models_list(tuners),
+        "tuner_dict": get_models_dict(tuners),
+    }
 
 
 

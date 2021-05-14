@@ -1,7 +1,7 @@
 import numpy as np
 
-from .process_model import ProcessModel
-from ..controllers.controller_model import ControllerModel
+from .base_process_model import ProcessModel
+from control_system.controllers.base_controller_model import ControllerModel
 
 
 class ConcentrationModel(ProcessModel):
@@ -118,9 +118,7 @@ class ConcentrationModel(ProcessModel):
         delta_error = control_value - set_point
 
         for valve in valves_config["input_valves"]:
-            valve["valve_open_percent"] = 0
-
-        for valve in valves_config["input_valves"]:
+            valve["valve_open_percent"] = controller.min_value
             concentration = valve["liquid_config"]["liquid_concentration_A"]
 
             if (delta_error < 0 and concentration > set_point) or (delta_error >= 0 and concentration <= set_point):
