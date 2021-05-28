@@ -7,14 +7,15 @@ class ProcessModel(object):
         self.tank_area = tank_area
         self.min_level = min_level
         self.max_level = max_level
+        self._last_error = 0.0
         self._results = {}
 
     @staticmethod
-    def get_default_simulation_config():
+    def get_default_config():
         return {
             "tank_area": 1,
             "simulation_time": 10,
-            "t_steps": 100,
+            "steps_count": 100,
             "initial_liquid_level": 0,
             "initial_liquid_concentration_A": 0,
             "valves_config": {
@@ -106,7 +107,7 @@ class ProcessModel(object):
         controller: ControllerModel = None,
         control_value: float = None,
     ) -> list:
-        if controller and control_value is not None:
+        if controller and control_value is not None and not(all(value == 0 for value in controller.terms.values())):
             valves_config = self._control_valves_open_percentage(
                 controller, self._results["set_points"]["values"][i], control_value, valves_config
             )

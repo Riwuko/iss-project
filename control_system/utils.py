@@ -8,7 +8,7 @@ from control_system import controllers, processes, tuners
 
 def merge_dicts(dict1, dict2):
     """ Recursively merges dict2 into dict1 """
-    if not dict2:
+    if not dict2 and dict2!=0:
         return dict1
     if not isinstance(dict1, dict) or not isinstance(dict2, dict):
         return dict2

@@ -108,26 +108,38 @@ class ConcentrationModel(ProcessModel):
             self._results["set_points"] = {"values": controller.set_points, "control_value": "concentration"}
 
     def _control_valves_open_percentage(
-        self, controller: ControllerModel, set_point: float, control_value: float, valves_config: dict
+        self, controller: ControllerModel, set_point: float, feedback_value: float, valves_config: dict
     ) -> dict:
         """Spcifies how the valves are gonna be selected for the automatic regulation.
-        For concentration model the controller updates valves only when:
-            > control_value is lower than set_point and valve substance concentration is bigger than set_point so it can be used to make control_value higher
-            > control_value is higher than set_point and valve substance concentration is lower than set_point so it can be uset to make control_value lower
         """
-        delta_error = control_value - set_point
+        error = feedback_value - set_point
 
-        for valve in valves_config["input_valves"]:
-            valve["valve_open_percent"] = controller.min_value
+        CONCENTRATION_TOO_HIGH = (error > 0) 
+        CONCENTRATION_TOO_LOW = (error < 0)
+        
+        for valve in valves_config.get("input_valves"):
             concentration = valve["liquid_config"]["liquid_concentration_A"]
 
-            if (delta_error < 0 and concentration > set_point) or (delta_error >= 0 and concentration <= set_point):
-                valve["valve_open_percent"] = controller.update(set_point, control_value)
-
+            if CONCENTRATION_TOO_LOW: #error < 0 so pid response for error will be lower than 0: "close!"
+                do_open = -error
+                do_close = error
+                if concentration >= set_point: #concentration higher
+                    valve["valve_open_percent"] = controller.update(do_open, self._last_error)
+                elif concentration < set_point: #concentration lower 
+                    valve["valve_open_percent"] = controller.update(do_close, self._last_error)
+            elif CONCENTRATION_TOO_HIGH: #error > 0 so pid response for error will be greater than 0: "open!"
+                do_open = error
+                do_close = -error 
+                if concentration > set_point:
+                    valve["valve_open_percent"] = controller.update(do_close, self._last_error)
+                elif concentration <= set_point:
+                    valve["valve_open_percent"] = controller.update(do_open, self._last_error)
+            
+        self._last_error = error
         return valves_config
 
     def run(self, config: dict = {}, controller: ControllerModel = None) -> dict:
-        ts = np.linspace(0, int(config["simulation_time"]), int(config["t_steps"]))
+        ts = np.linspace(0, int(config["simulation_time"]), int(config["steps_count"]))
         level = config["initial_liquid_level"] if config["initial_liquid_level"] > 0 else 0.01
         volume = level * self._tank_area
         concentration = config["initial_liquid_concentration_A"]
