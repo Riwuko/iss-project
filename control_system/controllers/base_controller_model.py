@@ -8,6 +8,7 @@ class ControllerModel(object):
         self.min_value = kwargs.get("min_value", 0)
         self._tuning_model = kwargs.get("tuner")
         self.set_points = kwargs.get("set_points", [])
+        self._delta_time = kwargs.get("delta_time")
 
         self.restart()
 
@@ -33,7 +34,7 @@ class ControllerModel(object):
         self._set_points = setpoints_list
 
     @staticmethod
-    def get_default_controller_config(time_steps: int):
+    def get_default_config(time_steps: int, simulation_time: int):
         time_steps = int(time_steps)
         set_points = {"range_to": time_steps, "value": 20}
 
@@ -44,6 +45,7 @@ class ControllerModel(object):
             "P": 5.0,
             "I": 2.8,
             "D": 1.0,
+            "delta_time": int(simulation_time)/time_steps,
         }
 
 

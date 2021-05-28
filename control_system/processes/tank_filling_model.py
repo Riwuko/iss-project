@@ -88,29 +88,24 @@ class TankFillingModel(ProcessModel):
             self._results["set_points"] = {"values": controller.set_points, "control_value": "volume"}
 
     def _control_valves_open_percentage(
-        self, controller: ControllerModel, set_point: float, control_value: float, valves_config: dict
+        self, controller: ControllerModel, set_point: float, feedback_value: float, valves_config: dict
     ) -> dict:
         """Spcifies how the valves are gonna be selected for the automatic regulation.
         For tank filling model the controller takes first valve and updates it unless it is fully opened/closed; if the set_point value is then still not achieved, takes next valve.
         """
-        delta_error = control_value - set_point
-        reverse = delta_error < 0
-        
-        for valve in valves_config["input_valves"]:
-            valve["valve_open_percent"] = controller.min_value
+        error = feedback_value - set_point
+        VOLUME_TOO_HIGH = (error > 0) 
 
-        valves = sorted(valves_config.get("input_valves"), key=lambda i: i["valve_capacity"], reverse=reverse)
-
+        #if the volume is too high, order reverse so the 'stronger' valves will be closed
+        valves = sorted(valves_config.get("input_valves"), key=lambda i: i["valve_capacity"], reverse=VOLUME_TOO_HIGH)
         for valve in valves:
-            valve["valve_open_percent"] = controller.update(set_point, control_value)
-            percentage = valve["valve_open_percent"]
-            if (set_point != control_value and (percentage != 0 and percentage != 100)) or set_point == control_value:
-                break
+            valve["valve_open_percent"] = controller.update(-error, self._last_error)
 
+        self._last_error = error
         return valves_config
 
     def run(self, config: dict = {}, controller: ControllerModel = None) -> dict:
-        ts = np.linspace(0, int(config["simulation_time"]), int(config["t_steps"]))
+        ts = np.linspace(0, int(config["simulation_time"]), int(config["steps_count"]))
         level = config["initial_liquid_level"]
         volume = level * self._tank_area
         valves_config = config["valves_config"]
@@ -118,7 +113,7 @@ class TankFillingModel(ProcessModel):
         self._prepare_results_collections(ts, config, controller)
 
         for i in range(len(ts) - 1):
-            level, volume = self._run_process(ts, i, [level, volume], valves_config, controller, level)
+            level, volume = self._run_process(ts, i, [level, volume], valves_config, controller, volume)
             level = self._validate_result(level, min_value=0, max_value=self.max_level)
             volume = self._validate_result(volume, min_value=0)
             self._results["level"]["results"].append(level)

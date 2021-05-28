@@ -1,60 +1,70 @@
 import React, { useState, useEffect } from "react";
-import { getProcess } from "../services/processService";
+import { useSelector } from "react-redux";
+import { getProcess } from "../../services/processService";
 
-import Chart from "./Chart";
+import Chart from "../../shared/Chart";
+import { selectProcessType, selectProcessConfig, selectControllerType, selectControllerConfig, selectTunerType, selectControlValueName, selectTunerConfig } from "../selectors";
 
-const ProcessChart = (props) => {
+const ProcessChart = () => {
   const [
     controlValueData,
     simulationResults,
     inputValvesData,
     setPointsData,
-  ] = useSelectProcessData(props);
+  ] = useSelectProcessData();
 
   return (
-    <div className="right-charts-container">
+    <>
       <ControlValueData
         setPointsData={setPointsData}
         controlValueData={controlValueData}
       />
-      {simulationResults.map((property, i) => (
-        <div key={i}>
-          <Chart
-            labels={property.times}
-            title={property.title}
-            datasets={[{ label: property.name, data: property.results }]}
-          />
-        </div>
-      ))}
+      <SimulationData simulationData={simulationResults} />
       <InputsData inputValvesData={inputValvesData} />
-    </div>
+    </>
   );
+};
+
+const SimulationData = ({ simulationData }) => {
+  if (simulationData.length>0)
+  return (
+    simulationData.map((property, i) => (
+      <div key={i}>
+        <Chart
+          labels={property.times}
+          title={property.title}
+          datasets={[{ label: property.name, data: property.results }]}
+        />
+      </div>
+    ))
+  )
+  else return null;
 };
 
 const ControlValueData = ({ setPointsData, controlValueData }) => {
   const controlValueDataSet = [];
-  if (setPointsData) {
-    controlValueDataSet.push({
-      label: "set points",
-      fill: false,
-      data: setPointsData.values,
-    });
-  }
+  controlValueDataSet.push({
+    label: "set points",
+    fill: false,
+    data: setPointsData?.values,
+  });
 
   controlValueDataSet.push({
     label: controlValueData?.name,
     data: controlValueData?.results,
   });
 
+  if (controlValueData)
   return (
     <div>
       <Chart
-        labels={controlValueData?.times}
-        title={controlValueData?.name}
+        labels={controlValueData.times}
+        title={controlValueData.name}
         datasets={controlValueDataSet}
       />
     </div>
   );
+  else return null;
 };
 
 const InputsData = ({ inputValvesData }) => {
@@ -65,11 +75,15 @@ const InputsData = ({ inputValvesData }) => {
     data: results,
   }));
 
+ 
+  if (inputValvesData.length>0)
   return (
-    <div>
+    <div>{
+      inputValvesData && 
       <Chart labels={labels} title={title} datasets={inputs} />
-    </div>
+    }</div>
   );
+  else return null;
 };
 
 const separateData = (items, controlValueName) => {
@@ -92,26 +106,29 @@ const separateData = (items, controlValueName) => {
   return [controlValue, inputValves, results, setPoints];
 };
 
-const useSelectProcessData = ({
-  controlValue: controlValueName,
-  processType,
-  simulationConfig,
-  controllerType,
-  controllerConfig,
-  tunerType,
-}) => {
+const useSelectProcessData = () => {
+  const processType = useSelector(selectProcessType);
+  const processConfig = useSelector(selectProcessConfig);
+  const controlValueName = useSelector(selectControlValueName);
+  const controllerType = useSelector(selectControllerType);
+  const controllerConfig = useSelector(selectControllerConfig);
+  const tunerType = useSelector(selectTunerType);
+  const tunerConfig = useSelector(selectTunerConfig);
+
   const [controlValueData, setControlValueData] = useState();
   const [simulationResults, setSimulationResults] = useState([]);
   const [inputValvesData, setInputValvesData] = useState([]);
   const [setPointsData, setSetPointsData] = useState();
 
   useEffect(() => {
+    if (processType)
     getProcess(
       processType,
-      simulationConfig,
+      processConfig,
       controllerType,
       controllerConfig,
-      tunerType
+      tunerType,
+      tunerConfig
     )
       .then((items) => {
         if (controlValueName) {
@@ -131,10 +148,11 @@ const useSelectProcessData = ({
   }, [
     controlValueName,
     processType,
-    simulationConfig,
+    processConfig,
     controllerType,
     controllerConfig,
     tunerType,
+    tunerConfig,
   ]);
 
   return [controlValueData, simulationResults, inputValvesData, setPointsData];

@@ -1,12 +1,12 @@
 import React from "react";
 import "./styles/style.css";
 
-import Process from "./components/Process";
+import ProcessPage from "./ProcessPage";
 
 function App() {
   return (
     <div className="App-container">
-      <Process />
+      <ProcessPage />
     </div>
   );
 }
