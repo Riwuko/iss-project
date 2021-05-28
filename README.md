@@ -29,9 +29,9 @@ In the `frontend` directory write proper instalation command inside the terminal
 `/` list of available processes {GET} <br>
 `/process` get default simulation config {GET} <br>
 `/process/<process-slug>` process config and simulation results for default config {GET} <br>
-`/process/<process-slug>` process config and simulation results for requested config; takes controller slug and tuner slug as query parameters {POST} <br>
+`/process/<process-slug>` process config and simulation results for requested config; takes controller slug and tuner slug as query parameters and controller config and tuner config as request body {POST} <br>
 Example: `/process/concentration-model?controller=pid&tuner=Ziegler-Nichols` <br>
 `/controllers` list of all available controllers {GET} <br>
 `/controller` get default controller config {GET} <br>
 `/tuners` list of available tunning methods {GET} <br>
-
+`/tuner` get default tuner config {GET} <br>
