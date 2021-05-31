@@ -93,16 +93,27 @@ class TankFillingModel(ProcessModel):
         """Spcifies how the valves are gonna be selected for the automatic regulation.
         For tank filling model the controller takes first valve and updates it unless it is fully opened/closed; if the set_point value is then still not achieved, takes next valve.
         """
-        error = feedback_value - set_point
-        VOLUME_TOO_HIGH = (error > 0) 
-
+        error = set_point - feedback_value
+        VOLUME_TOO_HIGH = (error < 0) 
+        print("\n========\n")
+        print(f"error: {error} = {set_point} - {feedback_value}")
+        if VOLUME_TOO_HIGH and controller.fuzzy_logic:
+            print("VOLUME TOO HIGH")
+        else: 
+            print("VOLUME TOO LOW")
         #if the volume is too high, order reverse so the 'stronger' valves will be closed
         valves = sorted(valves_config.get("input_valves"), key=lambda i: i["valve_capacity"], reverse=VOLUME_TOO_HIGH)
-        for valve in valves:
-            valve["valve_open_percent"] = controller.update(-error, self._last_error)
-
+        for i, valve in enumerate(valves):
+            print(f"Valve [{i}]: open = {valve['valve_open_percent']}")
+            valve["valve_open_percent"] = controller.update(error, self._last_error, set_point = set_point)
+            print(f"updated to: {valve['valve_open_percent']}")
+            percentage = valve["valve_open_percent"]
+            if (set_point != feedback_value and (percentage != 0 and percentage != 100)) or set_point == feedback_value:
+                break
         self._last_error = error
         return valves_config
+    
+        
 
     def run(self, config: dict = {}, controller: ControllerModel = None) -> dict:
         ts = np.linspace(0, int(config["simulation_time"]), int(config["steps_count"]))

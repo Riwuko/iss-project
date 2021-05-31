@@ -4,6 +4,7 @@ import { getTunerList } from "../../services/processService";
 import { useActionDispatcher } from "../actions";
 import { selectTunerType, selectControllerType } from "../selectors";
 import ProcessControllerTunerConfig from "./ProcessControllerTunerConfig";
+import {PID} from "../constants";
 
 const ProcessControllerTuner = () => {
   const [tuners, setTuners] = useState([]);
@@ -24,7 +25,7 @@ const ProcessControllerTuner = () => {
 
   return (
   <div>{
-      controllerType && 
+      controllerType==PID && 
         tuners.map((item, i) => (
           <div className='tuner-container' key={i}>
             <div>Add tuning method:</div>

@@ -45,3 +45,15 @@ def ensure_values_range(func):
         output = self.max_value if output > self.max_value else output
         return output
     return wrapper
+
+
+def check_set_point_change(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        set_point = kwargs["set_point"]
+        if set_point != self._last_set_point:
+            self._set_fuzzy_simulator()
+            print("\n\nHERE\n\n")
+        return func(self, *args, **kwargs)
+    return wrapper
+
