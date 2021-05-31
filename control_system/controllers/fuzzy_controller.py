@@ -29,7 +29,6 @@ class FuzzyController(ControllerModel):
         self._sim.input['delta'] = (error - last_error) / self._delta_time
         self._sim.input['error'] = error
         self._sim.compute()
-        print(f"for error: {error} and delta: {(error - last_error) / self._delta_time} output = {self._sim.output['output']}")
         self._last_set_point = set_point
         output = self._sim.output['output']
         return output if not reverse else -output

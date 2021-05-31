@@ -53,7 +53,6 @@ def check_set_point_change(func):
         set_point = kwargs["set_point"]
         if set_point != self._last_set_point:
             self._set_fuzzy_simulator()
-            print("\n\nHERE\n\n")
         return func(self, *args, **kwargs)
     return wrapper
 
