@@ -22,7 +22,7 @@ Add the library name to the `requirements.txt` file. Close the docker-compose if
 
 #### Front-end <br>
 
-In the `frontend` directory write proper instalation command inside the terminal. <br>
+Install libraries using npm and `package.json`. 
 
 ### Available endpoints <br>
 
