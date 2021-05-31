@@ -105,13 +105,23 @@ class ProcessModel(object):
         start_values=[],
         valves_config: dict = {},
         controller: ControllerModel = None,
-        control_value: float = None,
+        feedback_value: float = None,
     ) -> list:
-        if controller and control_value is not None and not(all(value == 0 for value in controller.terms.values())):
+
+        FUZZY_CONTROLLER = controller and controller.fuzzy_logic
+        PID_CONTROLLER = controller and not FUZZY_CONTROLLER
+
+        if PID_CONTROLLER and not(all(value == 0 for value in controller.terms.values())):
             valves_config = self._control_valves_open_percentage(
-                controller, self._results["set_points"]["values"][i], control_value, valves_config
+                controller, self._results["set_points"]["values"][i], feedback_value, valves_config
             )
 
+        elif FUZZY_CONTROLLER:
+            valves_config = self._control_valves_open_percentage(
+                controller, self._results["set_points"]["values"][i], feedback_value, valves_config
+            )
+
+            
         y = odeint(
             self._calculate_process_flow,
             start_values,

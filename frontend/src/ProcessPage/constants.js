@@ -7,4 +7,6 @@ export const ActionTypes = {
     SET_TUNER_CONFIG: "SET_TUNER_CONFIG",
     SET_CONTROL_VALUE_NAME: "SET_CONTROL_VALUE_NAME",
 }
+
+export const PID  = "pid"
   

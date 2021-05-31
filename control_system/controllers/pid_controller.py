@@ -27,7 +27,7 @@ class PIDController(ControllerModel):
         return P_computed + I_computed + D_computed
 
     @ensure_values_range
-    def update(self, error, last_error):
+    def update(self, error, last_error, *args, **kwargs):
         terms = self.terms
         if self._tuning_model:
             terms = self._tuning_model.add_tuning(self.terms)

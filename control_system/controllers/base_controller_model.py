@@ -1,8 +1,7 @@
-import time
-
 
 class ControllerModel(object):
     def __init__(self, **kwargs):
+        self.fuzzy_logic = False
         self._sample_time = 0.00
         self.max_value = kwargs.get("max_value", 20000)
         self.min_value = kwargs.get("min_value", 0)
@@ -14,8 +13,6 @@ class ControllerModel(object):
 
     def restart(self):
         self._last_error = 0.0
-        self._current_time = time.time()
-        self._last_time = self._current_time
 
     @property
     def set_points(self):
